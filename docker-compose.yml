@@ -1,0 +1,51 @@
+services:
+  #app:
+  #  build:
+  #    context: ./backend
+  #    dockerfile: Dockerfile
+  snackbar-production:
+    image: 171219910203199431032017/snackbar-order:latest
+    restart: always
+    container_name: snackbar-order
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    # depends_on:
+    #   - mongodb
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - APP_DB=${APP_DB}
+      - MONGODB_USER=${MONGODB_USER}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+      - MONGODB_OPTIONS=${MONGODB_OPTIONS}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES=${JWT_EXPIRES}
+      - MANAGEMENT_SERVICE_URL=http://afe45aea3560f45669e63c846d6e8361-770529674.us-east-1.elb.amazonaws.com
+      - PAYMENT_SERVICE_URL=http://afe45aea3560f45669e63c846d6e8361-770529674.us-east-1.elb.amazonaws.com
+    networks:
+      - snackbar-network
+
+
+  mongodb:
+    image: mongo:8.0.1
+    restart: no
+    container_name: mongodb-container
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - MONGODB_USER=${MONGODB_USER}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+      - DB_PORT=${DB_PORT}
+    volumes:
+      - mongodb_data:/data/db
+      - ./database/init-scripts/:/docker-entrypoint-initdb.d/
+
+
+networks:
+  snackbar-network:
+    external: true
